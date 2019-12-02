@@ -23,7 +23,7 @@ repositories {
 dependencies {
     compile(kotlin("stdlib"))
     compile("org.seleniumhq.selenium:selenium-java:3.+")
-    compile("com.github.qwertukg:SeleniumBuilder:90f6493c72")
+    //compile("com.github.qwertukg:SeleniumBuilder:90f6493c72")
 }
 
 
