@@ -1,12 +1,18 @@
 package uk.biddell.fantasypl.historyscraper
 
+import kz.qwertukg.driver
 import org.openqa.selenium.By
 import org.openqa.selenium.OutputType
+import org.openqa.selenium.WebElement
 import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.chrome.ChromeOptions
+import org.openqa.selenium.support.ui.ExpectedConditions
+import org.openqa.selenium.support.ui.WebDriverWait
 import java.io.File
 import java.util.concurrent.TimeUnit
 import javax.imageio.ImageIO
+
+private const val timeout = 3L
 
 val byTeam: By = By.cssSelector("div[class='sc-bdVaJa elkxqB']")
 val byNext: By = By.cssSelector("div[class='Pager__PagerButton-s2eddx-3 Pager__PagerButtonNext-s2eddx-4 kCqZVW']")
@@ -16,7 +22,23 @@ fun main(args: Array<String>) {
 
     println("Finished screenshot!")
 }
+
 private fun ChromeDriver.existsElement(by: By) = findElements(by).isNotEmpty()
+
+private fun ChromeDriver.findElementsSafe(by: By): List<WebElement>? = with(findElements(by)) {
+    if (isNotEmpty()) this else null
+}
+
+private fun ChromeDriver.findElementSafe(by: By): WebElement? = findElementsSafe(by)?.get(0)
+
+fun test() {
+    val teamID = 140733
+    val i = 1
+
+    driver(ChromeDriver()) {
+        get("https://fantasy.premierleague.com/entry/$teamID/event/$i")
+    }
+}
 
 fun start(teamID: Int) {
 
@@ -26,7 +48,7 @@ fun start(teamID: Int) {
             addArguments("--window-size=1920,1880")
         }
     ).apply {
-        //manage().timeouts().implicitlyWait(0, TimeUnit.MILLISECONDS)
+        manage().timeouts().implicitlyWait(timeout, TimeUnit.SECONDS)
     }
 
     var i = 1
@@ -34,13 +56,20 @@ fun start(teamID: Int) {
     driver["https://fantasy.premierleague.com/entry/$teamID/event/$i"]
 
 
+    //while(driver.existsElement(byNext)){}
+    while (driver.findElements(byNext).size >= 2) {
+        println(driver.currentUrl)
+        WebDriverWait(driver, timeout)
+            .until(ExpectedConditions.visibilityOfElementLocated(byNext))
+        //if(!driver.elementExists(byNext)) break
 
-    while(driver.existsElement(byNext)){
         println("Saving $i")
-        driver.screenshotTeam(File("${teamID}_${i++}.png"))
-        println(driver.currentUrl)
-        driver.findElement(byNext).click()
-        println(driver.currentUrl)
+        driver.screenshotTeam(File("img/${teamID}_${i++}.png"))
+
+        driver.findElementSafe(byNext)?.click() ?: println("Could not find next button?")
+        //driver["https://fantasy.premierleague.com/entry/$teamID/event/$i"]
+        //val a = driver.findElement(byNext).click()
+        //println(driver.currentUrl)
 
     }
 
@@ -49,9 +78,10 @@ fun start(teamID: Int) {
 
 }
 
-fun ChromeDriver.screenshotTeam(dest: File){
-    val ele = findElement(byTeam)
-
+fun ChromeDriver.screenshotTeam(dest: File) {
+    //val ele = findElement(byTeam)
+    val ele = WebDriverWait(this, 10)
+        .until(ExpectedConditions.visibilityOfElementLocated(byTeam))
 
     val screenshot = getScreenshotAs(OutputType.FILE)
 

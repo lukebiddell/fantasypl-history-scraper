@@ -12,6 +12,7 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    maven("https://jitpack.io")
 }
 
 //dependencies {
@@ -22,6 +23,7 @@ repositories {
 dependencies {
     compile(kotlin("stdlib"))
     compile("org.seleniumhq.selenium:selenium-java:3.+")
+    compile("com.github.qwertukg:SeleniumBuilder:90f6493c72")
 }
 
 
@@ -50,5 +52,5 @@ tasks.withType<Jar> {
     // This line of code recursively collects and copies all of a project's files
     // and adds them to the JAR itself. One can extend this task, to skip certain
     // files or particular types at will
-    from ( configurations.compile.get().map {  if (it.isDirectory) it else zipTree(it) } )
+    from(configurations.compile.get().map { if (it.isDirectory) it else zipTree(it) })
 }
