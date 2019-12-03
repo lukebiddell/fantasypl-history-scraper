@@ -1,12 +1,9 @@
 package uk.biddell.fantasypl.historyscraper
 
 import org.openqa.selenium.By
-import org.openqa.selenium.Keys
 import org.openqa.selenium.OutputType
 import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.chrome.ChromeOptions
-import org.openqa.selenium.firefox.FirefoxDriver
-import org.openqa.selenium.firefox.FirefoxOptions
 import java.io.File
 import java.util.concurrent.TimeUnit
 import javax.imageio.ImageIO
@@ -77,57 +74,6 @@ class SeleniumScraper() {
 
         //executeScript("document.body.style.webkitTransform = 'scale(1.0)'")
         //executeScript("document.body.style.zoom = '1.0'")
-    }
-
-    fun startFirefox(teamID: Int) = FirefoxDriver(FirefoxOptions().apply {
-        setHeadless(headless)
-        addArguments("--width=${zoom(width)}", "--height=${zoom(height)}")
-    }).run {
-        manage().timeouts().implicitlyWait(timeout, TimeUnit.SECONDS)
-
-        get("https://fantasy.premierleague.com/entry/$teamID/event/1")
-
-        do {
-            val gameweek = with(currentUrl) { substring(this.lastIndexOf('/') + 1) }
-            println(gameweek)
-            val finalGameweek = findElements(byNext).size < 2
-            screenshotTeam(File("img/${teamID}_${gameweek}.png"))
-            findElement(byNext).click()
-        } while (!finalGameweek)
-    }
-
-    private fun FirefoxDriver.screenshotTeam(dest: File) {
-        //executeScript("document.body.style.webkitTransform = 'scale($zoom)'")
-        //executeScript("document.body.style.zoom = '$zoom'")
-        zoomIn(numberOfZooms)
-
-        val ele = findElement(byTeam)
-        val screenshot = getScreenshotAs(OutputType.FILE)
-
-        val point = ele.location
-        val dimension = ele.size
-
-        val croppedScreenshot = ImageIO.read(screenshot).getSubimage(
-            zoom(point.x + 1), zoom(point.y),
-            zoom(dimension.width), zoom(dimension.height)
-        )
-
-        ImageIO.write(croppedScreenshot, "png", screenshot)
-
-        screenshot.copyTo(dest, true)
-
-        zoomReset()
-        //executeScript("document.body.style.webkitTransform = 'scale(1.0)'")
-        //executeScript("document.body.style.zoom = '1.0'")
-    }
-
-    fun FirefoxDriver.zoomReset() = findElement(By.tagName("body")).let { html ->
-        html.sendKeys(Keys.chord(Keys.CONTROL, "0"))
-    }
-
-
-    fun FirefoxDriver.zoomIn(n: Int) = findElement(By.tagName("body")).let { html ->
-        repeat(n) { html.sendKeys(Keys.chord(Keys.CONTROL, Keys.ADD)) }
     }
 
 }
