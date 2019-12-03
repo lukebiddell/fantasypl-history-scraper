@@ -34,6 +34,7 @@ fun main(args: Array<String>) {
 }
 
 fun startChrome(teamID: Int) = ChromeDriver(ChromeOptions().apply {
+    //setPageLoadStrategy(PageLoadStrategy.NONE)
     addArguments("--window-size=$width,$height", "--force-device-scale-factor=$zoom")
     //addArguments("start-maximized") // https://stackoverflow.com/a/26283818/1689770
     addArguments("enable-automation") // https://stackoverflow.com/a/43840128/1689770
