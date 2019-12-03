@@ -15,11 +15,6 @@ repositories {
     maven("https://jitpack.io")
 }
 
-//dependencies {
-//    implementation(kotlin("stdlib-jdk8"))
-//    implementation("org.seleniumhq.selenium:selenium-java:3.+")
-//}
-
 dependencies {
     compile(kotlin("stdlib"))
     compile("org.seleniumhq.selenium:selenium-java:3.+")
@@ -49,8 +44,5 @@ tasks.withType<Jar> {
         attributes["Main-Class"] = application.mainClassName
     }
 
-    // This line of code recursively collects and copies all of a project's files
-    // and adds them to the JAR itself. One can extend this task, to skip certain
-    // files or particular types at will
     from(configurations.compile.get().map { if (it.isDirectory) it else zipTree(it) })
 }

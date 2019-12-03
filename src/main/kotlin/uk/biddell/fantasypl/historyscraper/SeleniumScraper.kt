@@ -15,7 +15,7 @@ import kotlin.math.roundToInt
 class SeleniumScraper() {
 
     private val timeout = 100L
-    private val zoom = 2.0
+    private val zoom = 1.0
     private val numberOfZooms = 6
     private val width = 1800
     private val height = 1850
@@ -25,10 +25,7 @@ class SeleniumScraper() {
     private val byNext =
         By.cssSelector("div[class='Pager__PagerButton-s2eddx-3 Pager__PagerButtonNext-s2eddx-4 kCqZVW']")
 
-    private fun zoom(x: Int) = (x * zoom).roundToInt()
-
-
-    fun startChrome(teamID: Int) = ChromeDriver(ChromeOptions().apply {
+    private val options = ChromeOptions().apply {
         //setPageLoadStrategy(PageLoadStrategy.NONE)
         addArguments("--window-size=$width,$height", "--force-device-scale-factor=$zoom")
         //addArguments("start-maximized") // https://stackoverflow.com/a/26283818/1689770
@@ -39,9 +36,16 @@ class SeleniumScraper() {
         addArguments("--disable-dev-shm-usage") //https://stackoverflow.com/a/50725918/1689770
         addArguments("--disable-browser-side-navigation") //https://stackoverflow.com/a/49123152/1689770
         addArguments("--disable-gpu") //https://stackoverflow.com/questions/51959986/how-to-solve-selenium-chromedriver-timed-out-receiving-message-from-renderer-exc
-    }).run {
-        manage().timeouts().implicitlyWait(timeout, TimeUnit.SECONDS)
+    }
 
+    private val driver = ChromeDriver(options).apply {
+        manage().timeouts().implicitlyWait(timeout, TimeUnit.SECONDS)
+    }
+
+    private fun zoom(x: Int) = (x * zoom).roundToInt()
+
+
+    fun startChrome(teamID: Int) = driver.run {
         get("https://fantasy.premierleague.com/entry/$teamID/event/1")
 
         do {
@@ -54,9 +58,6 @@ class SeleniumScraper() {
     }
 
     private fun ChromeDriver.screenshotTeam(dest: File) {
-        //executeScript("document.body.style.webkitTransform = 'scale($zoom)'")
-        //executeScript("document.body.style.zoom = '$zoom'")
-
         val ele = findElement(byTeam)
         val screenshot = getScreenshotAs(OutputType.FILE)
 
@@ -71,9 +72,6 @@ class SeleniumScraper() {
         ImageIO.write(croppedScreenshot, "png", screenshot)
 
         screenshot.copyTo(dest, true)
-
-        //executeScript("document.body.style.webkitTransform = 'scale(1.0)'")
-        //executeScript("document.body.style.zoom = '1.0'")
     }
 
 }
